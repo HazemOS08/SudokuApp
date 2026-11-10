@@ -30,11 +30,11 @@ jobs:
 
     - name: Restore NuGet Packages
       run: |
-        nuget restore SudokuWPF.csproj
+        nuget restore SudokuWPF/SudokuWPF.csproj
 
     - name: Build C# WPF App (Release)
       run: |
-        msbuild SudokuWPF.csproj /p:Configuration=Release /p:Platform=x64
+        msbuild SudokuWPF/SudokuWPF.csproj /p:Configuration=Release /p:Platform=x64
 
     - name: Package Executable and DLL
       shell: powershell
