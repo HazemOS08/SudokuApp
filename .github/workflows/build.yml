@@ -41,20 +41,21 @@ jobs:
       run: |
         New-Item -ItemType Directory -Force -Path publish
         
-        # Locate the build output directory containing SudokuWPF.exe
-        $outputDir = (Get-ChildItem -Path . -Filter "SudokuWPF.exe" -Recurse | Select-Object -First 1).DirectoryName
+        $targetDir = "SudokuWPF\bin\Release"
         
-        if ($outputDir) {
-            # Copy all compiled binaries, configs, and dependencies (including SudokuWPF.dll)
-            Copy-Item "$outputDir\*" -Destination publish\ -Recurse -Force
+        if (Test-Path $targetDir) {
+            $frameworkFolder = Get-ChildItem -Path $targetDir -Directory | Select-Object -First 1
+            if ($frameworkFolder) {
+                Copy-Item "$($frameworkFolder.FullName)\*" -Destination publish\ -Recurse -Force
+            } else {
+                Copy-Item "$targetDir\*" -Destination publish\ -Recurse -Force
+            }
         } else {
-            throw "Build output directory containing SudokuWPF.exe not found!"
+            throw "Build output path $targetDir not found!"
         }
         
-        # Copy the C++ backend DLL into the publish folder
         Copy-Item Sudoku.dll -Destination publish\ -Force
         
-        # Compress everything into the final zip archive
         Compress-Archive -Path publish\* -DestinationPath SudokuApp-Windows.zip -Force
 
     - name: Publish GitHub Release
@@ -63,6 +64,6 @@ jobs:
         files: SudokuApp-Windows.zip
         tag_name: v1.0.${{ github.run_number }}
         name: "Sudoku App Build #${{ github.run_number }}"
-        body: "Automated build containing SudokuWPF.exe, SudokuWPF.dll, and Sudoku.dll ready to run."
+        body: "Automated build containing SudokuWPF.exe, SudokuWPF.dll, and Sudoku.dll."
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
