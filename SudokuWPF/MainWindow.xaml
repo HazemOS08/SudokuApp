@@ -1,0 +1,56 @@
+﻿<Window x:Class="SudokuWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Sudoku Game" Height="550" Width="680" ResizeMode="NoResize"
+        Background="#F3F4F6">
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="400"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!--  9x9 Sudoku Board -->
+        <Border Grid.Column="0" BorderBrush="#1F2937" BorderThickness="3" Background="White" Margin="0,0,15,0">
+            <UniformGrid Columns="3" Rows="3">
+                <!-- 3x3 Subgrid Blocks -->
+                <UniformGrid x:Name="Block_0_0" Columns="3" Rows="3"/>
+                <UniformGrid x:Name="Block_0_1" Columns="3" Rows="3"/>
+                <UniformGrid x:Name="Block_0_2" Columns="3" Rows="3"/>
+                <UniformGrid x:Name="Block_1_0" Columns="3" Rows="3"/>
+                <UniformGrid x:Name="Block_1_1" Columns="3" Rows="3"/>
+                <UniformGrid x:Name="Block_1_2" Columns="3" Rows="3"/>
+                <UniformGrid x:Name="Block_2_0" Columns="3" Rows="3"/>
+                <UniformGrid x:Name="Block_2_1" Columns="3" Rows="3"/>
+                <UniformGrid x:Name="Block_2_2" Columns="3" Rows="3"/>
+            </UniformGrid>
+        </Border>
+
+        <!--  Control Panel -->
+        <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <!-- Status & New Game -->
+            <Button Content="New Game" Width="180" Height="40" Click="NewGame_Click" 
+                    Background="#2563EB" Foreground="White" FontWeight="Bold" FontSize="14" Cursor="Hand" Margin="0,0,0,15"/>
+
+            <TextBlock x:Name="StatusText" Text="Tries remaining: 3" HorizontalAlignment="Center" FontSize="14" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,20"/>
+
+            <TextBlock Text="Select a Number:" HorizontalAlignment="Center" FontSize="13" Foreground="#6B7280" Margin="0,0,0,10"/>
+
+            <!-- 3x3 Number Pad (1-9) -->
+            <UniformGrid Width="180" Height="180" Columns="3" Rows="3" Margin="0,0,0,10">
+                <Button Content="1" Click="NumberPad_Click" FontSize="18" FontWeight="Bold" Margin="2"/>
+                <Button Content="2" Click="NumberPad_Click" FontSize="18" FontWeight="Bold" Margin="2"/>
+                <Button Content="3" Click="NumberPad_Click" FontSize="18" FontWeight="Bold" Margin="2"/>
+                <Button Content="4" Click="NumberPad_Click" FontSize="18" FontWeight="Bold" Margin="2"/>
+                <Button Content="5" Click="NumberPad_Click" FontSize="18" FontWeight="Bold" Margin="2"/>
+                <Button Content="6" Click="NumberPad_Click" FontSize="18" FontWeight="Bold" Margin="2"/>
+                <Button Content="7" Click="NumberPad_Click" FontSize="18" FontWeight="Bold" Margin="2"/>
+                <Button Content="8" Click="NumberPad_Click" FontSize="18" FontWeight="Bold" Margin="2"/>
+                <Button Content="9" Click="NumberPad_Click" FontSize="18" FontWeight="Bold" Margin="2"/>
+            </UniformGrid>
+
+            <!-- Clear / Erase Button -->
+            <Button Content="Erase Cell" Width="180" Height="35" Click="ClearCell_Click" 
+                    Background="#EF4444" Foreground="White" FontWeight="Bold" FontSize="13" Cursor="Hand"/>
+        </StackPanel>
+    </Grid>
+</Window>
