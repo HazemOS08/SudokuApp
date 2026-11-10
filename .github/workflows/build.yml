@@ -25,38 +25,23 @@ jobs:
       run: |
         cl /LD /EHsc Sudoku.cpp /Fe:Sudoku.dll
 
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v2
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
 
-    - name: Restore NuGet Packages
+    - name: Publish C# WPF App
       run: |
-        nuget restore SudokuWPF/SudokuWPF.csproj
+        dotnet publish SudokuWPF/SudokuWPF.csproj -c Release -r win-x64 --self-contained false -o publish_output
 
-    - name: Build C# WPF App (Release)
-      run: |
-        msbuild SudokuWPF/SudokuWPF.csproj /p:Configuration=Release /p:Platform=x64
-
-    - name: Package Executable and DLLs
+    - name: Package Executable, DLLs, and Release Zip
       shell: powershell
       run: |
-        New-Item -ItemType Directory -Force -Path publish
+        # Copy the compiled C++ backend DLL directly into the publish output folder
+        Copy-Item Sudoku.dll -Destination publish_output\ -Force
         
-        # Dynamically locate SudokuWPF.exe anywhere in the repository build output
-        $exeFile = Get-ChildItem -Path . -Filter "SudokuWPF.exe" -Recurse | Select-Object -First 1
-        
-        if ($exeFile) {
-            $outputDir = $exeFile.DirectoryName
-            Write-Host "Found build output at: $outputDir"
-            Copy-Item "$outputDir\*" -Destination publish\ -Recurse -Force
-        } else {
-            throw "SudokuWPF.exe could not be found anywhere in the workspace!"
-        }
-        
-        # Copy the compiled C++ backend DLL into the publish folder
-        Copy-Item Sudoku.dll -Destination publish\ -Force
-        
-        # Compress everything into the final zip archive
-        Compress-Archive -Path publish\* -DestinationPath SudokuApp-Windows.zip -Force
+        # Compress the complete publish folder into the final zip archive
+        Compress-Archive -Path publish_output\* -DestinationPath SudokuApp-Windows.zip -Force
 
     - name: Publish GitHub Release
       uses: softprops/action-gh-release@v2
