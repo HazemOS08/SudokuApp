@@ -1,0 +1,62 @@
+name: Build and Publish Release Binaries
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up MSVC Developer Environment
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
+    - name: Compile C++ Backend DLL
+      run: |
+        cl /LD /EHsc Sudoku.cpp /Fe:Sudoku.dll
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Restore NuGet Packages
+      run: |
+        nuget restore SudokuWPF.csproj
+
+    - name: Build C# WPF App (Release)
+      run: |
+        msbuild SudokuWPF.csproj /p:Configuration=Release /p:Platform=x64
+
+    - name: Package Executable and DLL
+      shell: powershell
+      run: |
+        New-Item -ItemType Directory -Force -Path publish
+        
+        $exeFile = Get-ChildItem -Path . -Filter "SudokuWPF.exe" -Recurse | Select-Object -First 1
+        if ($exeFile) {
+            Copy-Item $exeFile.FullName -Destination publish\
+        } else {
+            throw "SudokuWPF.exe not found!"
+        }
+        
+        Copy-Item Sudoku.dll -Destination publish\
+        Compress-Archive -Path publish\* -DestinationPath SudokuApp-Windows.zip -Force
+
+    - name: Publish GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: SudokuApp-Windows.zip
+        tag_name: v1.0.${{ github.run_number }}
+        name: "Sudoku App Build #${{ github.run_number }}"
+        body: "Automated build containing SudokuWPF.exe and Sudoku.dll ready to extract and run."
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
